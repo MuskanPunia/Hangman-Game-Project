@@ -13,23 +13,21 @@ class HangmanGame(tk.Tk):
         self.canvas.pack(pady=20)
 
         self.themes = {
-            "Colors": {"red": "is associated with fire", "blue": "is the color of the sky", "green": "is the color of grass", "yellow": "is the color of the sun", "orange": "is a citrus color", "purple": "is a royal color", "black": "is the color of darkness", "white": "is the color of purity"},
-            "Animals": {"lion": "roars loudly", "elephant": "has a long trunk", "tiger": "has stripes", "giraffe": "has a long neck", "zebra": "has black and white stripes", "monkey": "loves bananas", "panda": "is black and white", "koala": "loves eucalyptus leaves"},
-            "Countries": {"Chile": "is in South America", "Brazil": "is known for its rainforests", "Norway": "is in Europe", "Denmark": "is in Scandinavia", "Serbia": "is in Eastern Europe", "Mexico": "is in North America", "Canada": "is known for its maple leaf", "Japan": "is in Asia"},
-            "Flowers": {"rose": "is a symbol of love", "tulip": "comes in many colors", "daisy": "has white petals", "sunflower": "is yellow and tall", "lily": "is often used in weddings", "orchid": "has delicate petals", "daffodil": "blooms in spring", "peony": "has large colorful flowers"},
-            "Planets": {"mercury": "is closest to the sun", "venus": "is known as the morning star", "earth": "is the only known planet with life", "mars": "is known as the red planet", "jupiter": "is the largest planet", "saturn": "has beautiful rings", "uranus": "is tilted on its side", "neptune": "is blue and cold"},
-            "Companies": {"apple": "makes iPhones", "google": "owns the search engine", "amazon": "is an online marketplace", "facebook": "is a social media platform", "microsoft": "makes Windows", "tesla": "makes electric cars", "netflix": "streams movies and TV shows", "ibm": "is a technology company"},
-            "Medical Science": {"anatomy": "is the study of body structure", "biology": "is the study of living organisms", "chemistry": "deals with the composition of substances", "physiology": "is the study of how the body functions", "pharmacology": "is the study of drugs", "genetics": "is the study of genes", "pathology": "is the study of diseases", "immunology": "is the study of the immune system"},
-            "Politics": {"democracy": "is a form of government by the people", "republic": "is a state where supreme power is held by the people", "president": "is the head of state", "parliament": "is the legislative body", "election": "is the process of choosing a leader", "government": "is the system by which a state or community is controlled", "politics": "is the activities associated with governance", "legislation": "is the making or enactment of laws"},
-            "Commerce": {"market": "is where goods are bought and sold", "trade": "involves the exchange of goods and services", "economy": "is the system of production, distribution, and consumption", "finance": "deals with the management of money", "investment": "involves putting money into financial schemes", "business": "involves providing goods or services to customers", "entrepreneur": "is a person who starts a business", "consumer": "is a person who buys goods or services for personal use"}
+            "Colors": ["red", "blue", "green", "yellow", "orange", "purple", "black", "white"],
+            "Animals": ["lion", "elephant", "tiger", "giraffe", "zebra", "monkey", "panda", "koala"],
+            "Countries": ["Chile", "Brazil", "Norway", "Denmark", "Serbia", "Mexico", "Canada", "Japan"],
+            "Flowers": ["rose", "tulip", "daisy", "sunflower", "lily", "orchid", "daffodil", "peony"],
+            "Planets": ["mercury", "venus", "earth", "mars", "jupiter", "saturn", "uranus", "neptune"],
+            "Companies": ["apple", "google", "amazon", "facebook", "microsoft", "tesla", "netflix", "ibm"],
+            "Medical Science": ["anatomy", "biology", "chemistry", "physiology", "pharmacology", "genetics", "pathology", "immunology"],
+            "Politics": ["democracy", "republic", "president", "parliament", "election", "government", "politics", "legislation"],
+            "Commerce": ["market", "trade", "economy", "finance", "investment", "business", "entrepreneur", "consumer"]
         }
 
         self.selected_theme = ""
         self.word = ""
-        self.word_hint = ""
         self.remaining_attempts = 6
         self.guessed_letters = []
-        self.hint_counter = 0
 
         self.create_widgets()
 
@@ -67,9 +65,8 @@ class HangmanGame(tk.Tk):
 
     def init_game(self):
         if self.selected_theme:
-            word_hint_pair = random.choice(list(self.themes[self.selected_theme].items()))
-            self.word = word_hint_pair[0]
-            self.word_hint = f"{word_hint_pair[0]}: {word_hint_pair[1]}"  # Updated to include colon between word and hint
+            word = random.choice(self.themes[self.selected_theme])
+            self.word = word.lower()
             self.hidden_word = ["_"] * len(self.word)
             self.update_word_label()
             self.remaining_attempts = 6
@@ -77,7 +74,6 @@ class HangmanGame(tk.Tk):
             self.guessed_letters = []
             self.canvas.delete("hangman")  # Clear previous hangman parts
             self.draw_hangman()
-            self.hint_counter = 0  # Reset hint counter
 
     def update_word_label(self):
         displayed_word = " ".join(self.hidden_word)
@@ -93,8 +89,8 @@ class HangmanGame(tk.Tk):
 
         self.guessed_letters.append(letter)
 
-        if letter in self.word.lower():
-            for i, char in enumerate(self.word.lower()):
+        if letter in self.word:
+            for i, char in enumerate(self.word):
                 if char == letter:
                     self.hidden_word[i] = self.word[i]
             self.update_word_label()
@@ -109,14 +105,6 @@ class HangmanGame(tk.Tk):
                 self.restart_game()
             else:
                 self.draw_hangman()
-                self.hint_counter += 1
-                if self.hint_counter == 3:  # Check if three wrong attempts have been made
-                    self.show_hint()
-                    self.hint_counter = 0  # Reset hint counter
-
-    def show_hint(self):
-        # Displaying the correct hint with the word
-        messagebox.showinfo("Hint", self.word_hint)
 
     def draw_hangman(self):
         if self.remaining_attempts == 6:
@@ -139,6 +127,7 @@ class HangmanGame(tk.Tk):
         elif self.remaining_attempts == 1:
             # Draw left leg
             self.canvas.create_line(162.5, 200, 137.5, 225, fill="white", width=2, tags="hangman")
+            self.canvas.create_line(162.5, 200, 137.5, 225, fill="white", width=2, tags="hangman")
         elif self.remaining_attempts == 0:
             # Draw right leg and display game over message
             self.canvas.create_line(162.5, 200, 187.5, 225, fill="white", width=2, tags="hangman")
@@ -154,4 +143,3 @@ class HangmanGame(tk.Tk):
 if __name__ == "__main__":
     app = HangmanGame()
     app.mainloop()
-
