@@ -27,4 +27,5 @@ VERSION-3:
 3. Corrected the errors regarding blanks.
 4. Worked more on the user interface to make it look more better.
 5. made the hints more precise and easy to comprehend by the player to cheer them up to keep playing.
+6. Added GUI to the game and made it more interactive.z
 
