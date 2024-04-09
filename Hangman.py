@@ -7,27 +7,63 @@ class HangmanGame(tk.Tk):
         super().__init__()
         self.title("Hangman Game")
         self.geometry("500x600")
-        self.configure(bg="#ADD8E6")  # Set background color to light blue
-
+        self.themes_colors = {
+            "Colors": "#ADD8E6",  # Light blue
+            "Animals": "#90EE90",  # Light green
+            "Countries": "#FFA07A",  # Light salmon
+            "Fruits": "#FFD700",  # Gold
+            "Planets": "#AFEEEE"  # Pale turquoise
+        }
+        self.configure(bg="#ADD8E6")  # Default background color
         self.canvas = tk.Canvas(self, bg="#ADD8E6", width=300, height=300)  # Reduced canvas height
         self.canvas.pack(pady=20)
-
         self.themes = {
-            "Colors": ["red", "blue", "green", "yellow", "orange", "purple", "black", "white"],
-            "Animals": ["lion", "elephant", "tiger", "giraffe", "zebra", "monkey", "panda", "koala"],
-            "Countries": ["Chile", "Brazil", "Norway", "Denmark", "Serbia", "Mexico", "Canada", "Japan"],
-            "Flowers": ["rose", "tulip", "daisy", "sunflower", "lily", "orchid", "daffodil", "peony"],
-            "Planets": ["mercury", "venus", "earth", "mars", "jupiter", "saturn", "uranus", "neptune"],
-            "Companies": ["apple", "google", "amazon", "facebook", "microsoft", "tesla", "netflix", "ibm"],
-            "Medical Science": ["anatomy", "biology", "chemistry", "physiology", "pharmacology", "genetics", "pathology", "immunology"],
-            "Politics": ["democracy", "republic", "president", "parliament", "election", "government", "politics", "legislation"],
-            "Commerce": ["market", "trade", "economy", "finance", "investment", "business", "entrepreneur", "consumer"]
+            "Colors": {"red": "It is a color associated with love and passion.",
+                       "blue": "It is the color of the sky on a clear day.",
+                       "green": "It is the color of grass and leaves.",
+                       "yellow": "It is the color of the sun.",
+                       "orange": "It is a fruit and a color.",
+                       "purple": "It is often associated with royalty.",
+                       "black": "It is the absence of light.",
+                       "white": "It is the color of purity and innocence."},
+            "Animals": {"lion": "It is known as the king of the jungle.",
+                        "elephant": "It is the largest land animal.",
+                        "tiger": "It has stripes and is orange in color.",
+                        "giraffe": "It has a long neck and spots.",
+                        "zebra": "It has black and white stripes.",
+                        "monkey": "It is a primate known for its agility.",
+                        "panda": "It is black and white and eats bamboo.",
+                        "koala": "It is a marsupial native to Australia."},
+            "Countries": {"Chile": "It is known for its long and narrow shape.",
+                          "Brazil": "It is the largest country in South America.",
+                          "Norway": "It is located in Northern Europe and is known for its fjords.",
+                          "Denmark": "It is a Scandinavian country known for its high standard of living.",
+                          "Serbia": "It is a country located in Southeast Europe.",
+                          "Mexico": "It is known for its rich culture and cuisine.",
+                          "Canada": "It is the second-largest country in the world by land area.",
+                          "Japan": "It is an island country in East Asia."},
+            "Fruits": {"apple": "It is a popular fruit that comes in various colors.",
+                       "banana": "It is a long yellow fruit that grows on trees.",
+                       "strawberry": "It is a small red fruit with seeds on its surface.",
+                       "pineapple": "It is a tropical fruit with a spiky exterior and sweet interior.",
+                       "grape": "It is a small round fruit often used to make wine.",
+                       "watermelon": "It is a large fruit with green skin and red juicy flesh.",
+                       "kiwi": "It is a small green fruit with brown skin and tiny black seeds.",
+                       "orange": "It is a citrus fruit known for its vitamin C content."},
+            "Planets": {"mercury": "It is the smallest planet in our solar system.",
+                        "venus": "It is often called Earth's twin due to its similar size and composition.",
+                        "earth": "It is the third planet from the sun and the only known planet with life.",
+                        "mars": "It is often called the red planet.",
+                        "jupiter": "It is the largest planet in our solar system.",
+                        "saturn": "It is known for its rings made of ice and dust.",
+                        "uranus": "It is tilted on its side, giving it unique seasons.",
+                        "neptune": "It is the farthest planet from the sun."}
         }
-
         self.selected_theme = ""
         self.word = ""
         self.remaining_attempts = 6
         self.guessed_letters = []
+
 
         self.create_widgets()
 
@@ -43,9 +79,13 @@ class HangmanGame(tk.Tk):
                       activebackground="#FFA500", activeforeground="#FFFFFF",
                       width=10, height=1,
                       command=lambda t=theme: self.select_theme(t)).pack(side=tk.LEFT, padx=5, pady=5)
-
+        
+        
         self.word_label = tk.Label(self, text="", font=("Arial", 24), bg="#ADD8E6", fg="#FFFFFF")
         self.word_label.pack(pady=20)
+
+        self.hint_label = tk.Label(self, text="", font=("Arial", 14), bg="#ADD8E6", fg="#FFFFFF")
+        self.hint_label.pack(pady=5)
 
         self.remaining_attempts_label = tk.Label(self, text="", font=("Arial", 14), bg="#ADD8E6", fg="#FFFFFF")
         self.remaining_attempts_label.pack(pady=5)
@@ -61,11 +101,12 @@ class HangmanGame(tk.Tk):
 
     def select_theme(self, theme):
         self.selected_theme = theme
+        self.configure(bg=self.themes_colors[theme])
         self.init_game()
 
     def init_game(self):
         if self.selected_theme:
-            word = random.choice(self.themes[self.selected_theme])
+            word, hint = random.choice(list(self.themes[self.selected_theme].items()))
             self.word = word.lower()
             self.hidden_word = ["_"] * len(self.word)
             self.update_word_label()
@@ -74,18 +115,15 @@ class HangmanGame(tk.Tk):
             self.guessed_letters = []
             self.canvas.delete("hangman")  # Clear previous hangman parts
             self.draw_hangman()
+            self.display_hint(hint)
 
-    def update_word_label(self):
-        displayed_word = " ".join(self.hidden_word)
-        self.word_label.config(text=displayed_word)
-
-    def update_remaining_attempts_label(self):
-        self.remaining_attempts_label.config(text=f"Remaining Attempts: {self.remaining_attempts}")
+    def display_hint(self, hint):
+        self.hint_label.config(text=f"Hint: {hint}")
 
     def guess_letter(self, letter):
         if letter in self.guessed_letters:
             messagebox.showinfo("Already Guessed", "You have already guessed this letter.")
-            return
+            return;
 
         self.guessed_letters.append(letter)
 
@@ -103,8 +141,17 @@ class HangmanGame(tk.Tk):
             if self.remaining_attempts == 0:
                 messagebox.showinfo("Game Over", f"Sorry, you lost. The word was: {self.word}")
                 self.restart_game()
+            elif self.remaining_attempts == 3:
+                self.display_hint(random.choice(list(self.themes[self.selected_theme].values())))
             else:
                 self.draw_hangman()
+
+    def update_word_label(self):
+        displayed_word = " ".join(self.hidden_word)
+        self.word_label.config(text=displayed_word)
+
+    def update_remaining_attempts_label(self):
+        self.remaining_attempts_label.config(text=f"Remaining Attempts: {self.remaining_attempts}")
 
     def draw_hangman(self):
         if self.remaining_attempts == 6:
@@ -127,7 +174,6 @@ class HangmanGame(tk.Tk):
         elif self.remaining_attempts == 1:
             # Draw left leg
             self.canvas.create_line(162.5, 200, 137.5, 225, fill="white", width=2, tags="hangman")
-            self.canvas.create_line(162.5, 200, 137.5, 225, fill="white", width=2, tags="hangman")
         elif self.remaining_attempts == 0:
             # Draw right leg and display game over message
             self.canvas.create_line(162.5, 200, 187.5, 225, fill="white", width=2, tags="hangman")
@@ -143,3 +189,4 @@ class HangmanGame(tk.Tk):
 if __name__ == "__main__":
     app = HangmanGame()
     app.mainloop()
+
